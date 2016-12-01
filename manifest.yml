@@ -1,0 +1,13 @@
+---
+applications:
+  - name: windDigitalization-backend
+    buildpack: java_buildpack
+    path: target/predix-microservice-cf-spring-1.1.6.jar
+    timeout : 180
+    instances: 1   
+    memory: 1G
+    services:
+    - windDigitalization_postgresql
+env:
+   SPRING_PROFILES_ACTIVE : cloud  
+   JAVA_DOCS_URL : https://predixdev.github.io/predix-microservice-cf-spring
