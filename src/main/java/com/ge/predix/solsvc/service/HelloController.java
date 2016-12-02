@@ -29,9 +29,9 @@ public class HelloController
 {
 
 	private static final Logger log = LoggerFactory.getLogger(Application.class);
-	private static final String URL = "jdbc:postgresql://localhost/wind_digitalization";
-	private static final String USER = "admin";
-	private static final String PASSWORD = "admin";
+	private static final String URL = "jdbc:postgresql://10.72.6.143:5432/de18cf678ae7f4872a19f2a55c2983269";
+	private static final String USER = "u29fc273d52204df6a3f18ca46a67d034";
+	private static final String PASSWORD = "f365409705974ec19c5cd9b00a6303e4";
 
     /**
      * 
@@ -78,7 +78,7 @@ public class HelloController
         try {
             
             con = DriverManager.getConnection(URL, USER, PASSWORD);
-            pst = con.prepareStatement("select * from component order by name");
+            pst = con.prepareStatement("select * from cumulus.component order by name");
             rs = pst.executeQuery();
 
             while (rs.next()) {
@@ -125,7 +125,7 @@ public class HelloController
         try {
             
         	con = DriverManager.getConnection(URL, USER, PASSWORD);
-            pst = con.prepareStatement("select * from oem order by name");
+            pst = con.prepareStatement("select * from cumulus.oem order by name");
             rs = pst.executeQuery();
 
             while (rs.next()) {
@@ -161,7 +161,7 @@ public class HelloController
 
     @SuppressWarnings("nls")
     @RequestMapping(value = "/sources", method = RequestMethod.GET)
-    public String sources(@RequestParam(value = "components", required = true) String components, @RequestParam(value = "oems", required = false) String oems)
+    public String sources(@RequestParam(value = "components", required = false) String components, @RequestParam(value = "oems", required = false) String oems)
     {
        log.info("Connecting!.");
         
@@ -172,11 +172,15 @@ public class HelloController
         StringBuffer query = new StringBuffer();
         
         query.append("SELECT DISTINCT  supplier.id supplier_id, supplier.name supplier_name, supplier.suffix, supplier.address, supplier.latitude, ");
-        query.append("supplier.longitude, component.name component_name FROM supplier, source, component, provider, spec, turbine, family, oem WHERE ");
-        query.append("(supplier.id = provider.supplier AND source.component = component.id AND source.supplier = supplier.id AND ");
-        query.append("component.id = provider.component AND provider.spec = spec.id AND spec.turbine = turbine.id AND turbine.family = family.id ");
+        query.append("supplier.longitude, component.name component_name ");
+        query.append("FROM cumulus.supplier, cumulus.source, cumulus.component, cumulus.provider, cumulus.spec, cumulus.turbine, cumulus.family, cumulus.oem ");  
+        query.append("WHERE (supplier.id = provider.supplier AND source.component = component.id AND source.supplier = supplier.id ");
+        query.append("AND component.id = provider.component AND provider.spec = spec.id AND spec.turbine = turbine.id AND turbine.family = family.id ");
         query.append("AND family.oem = oem.id) ");
+        
+        if (!StringUtils.isEmpty(components)){
         query.append("AND ( component.id IN (" + components + ") ) ");
+        }
         
         if (!StringUtils.isEmpty(oems)){
         	query.append("AND ( oem.id IN (" + oems + ") ) ");
